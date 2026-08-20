@@ -15,6 +15,9 @@ const ICONS = {
   globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20 15.3 15.3 0 0 1 0-20z"/></svg>',
   play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
+  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.7L5.8 21l1.6-7L2 9.2l7.1-.6z"/></svg>',
+  starOutline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.7L5.8 21l1.6-7L2 9.2l7.1-.6z"/></svg>',
 };
 
 const CATEGORY_META = {
@@ -160,8 +163,11 @@ function renderGrid() {
       const meta = CATEGORY_META[l.category] || CATEGORY_META.templates;
       const badgeHtml = l.badge ? `<span class="card-badge ${l.badge === 'Hot' ? 'hot' : ''}">${l.badge}</span>` : '';
       const liveHtml = l.liveUrl
-        ? `<a class="card-live" href="${l.liveUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><span class="dot"></span> Live view</a>`
+        ? `<a class="card-live" href="${l.liveUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><span class="dot"></span> Preview site</a>`
         : '';
+      const ratingHtml = l.reviews
+        ? `<span class="cs-item"><span class="cs-ic">${ICONS.star}</span>${l.rating.toFixed(1)}</span>`
+        : `<span class="cs-item cs-muted"><span class="cs-ic">${ICONS.starOutline}</span>New</span>`;
       return `<div class="card" style="animation-delay:${Math.min(i * 0.04, 0.4)}s" onclick="openProduct('${l._id}')">
         <div class="card-thumb">
           ${badgeHtml}
@@ -170,6 +176,10 @@ function renderGrid() {
         <div class="card-body">
           <span class="card-cat"><span class="cat-ic">${meta.icon}</span>${meta.label}</span>
           <div class="card-title">${l.name}</div>
+          <div class="card-stats">
+            <span class="cs-item"><span class="cs-ic">${ICONS.eye}</span>${(l.views || 0).toLocaleString('en-IN')}</span>
+            ${ratingHtml}
+          </div>
           ${liveHtml}
           <div class="card-foot">
             <div class="card-price">₹${l.price.toLocaleString('en-IN')}${l.mrp ? `<small>₹${l.mrp.toLocaleString('en-IN')}</small>` : ''}</div>
@@ -278,24 +288,63 @@ document.addEventListener('click', (e) => {
 // ============================================================
 //  PRODUCT DETAIL
 // ============================================================
+// A device only sees the rate-it prompt once per listing — flagged in
+// localStorage the moment a rating is submitted.
+function ratedKey(id) { return `wb_rated_${id}`; }
+
 function renderProductModal(l) {
   const meta = CATEGORY_META[l.category] || CATEGORY_META.templates;
   const liveBtn = l.liveUrl
     ? `<a class="btn btn-ghost" href="${l.liveUrl}" target="_blank" rel="noopener" style="margin-top:10px;">See Live Site</a>`
     : '';
   const hasDesc = l.desc && l.desc.trim() && l.desc !== 'No description provided.';
+
+  const ratingLabel = l.reviews
+    ? `${l.rating.toFixed(1)} <span class="pd-rating-count">(${l.reviews} rating${l.reviews === 1 ? '' : 's'})</span>`
+    : `<span class="pd-rating-count">Not rated yet</span>`;
+  const alreadyRated = localStorage.getItem(ratedKey(l._id));
+  const rateWidget = alreadyRated
+    ? `<p class="pd-rated-note">${ICONS.star} You rated this ${alreadyRated}/5 — thanks!</p>`
+    : `<div class="pd-rate-box">
+        <span>Rate this website</span>
+        <div class="pd-stars">${[1, 2, 3, 4, 5]
+          .map((n) => `<button type="button" class="pd-star" onclick="submitRating('${l._id}', ${n})" aria-label="Rate ${n} star">${ICONS.starOutline}</button>`)
+          .join('')}</div>
+      </div>`;
+
   document.getElementById('pdModal').innerHTML = `
     <div class="modal-head"><h3>${l.name}</h3><button class="modal-close" onclick="closePd()"><svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
     <div class="pd-thumb">${renderMediaTrack(l, { big: true })}</div>
     <span class="card-cat"><span class="cat-ic">${meta.icon}</span>${meta.label}</span>
+    <div class="pd-meta-row">
+      <span class="cs-item"><span class="cs-ic">${ICONS.eye}</span>${(l.views || 0).toLocaleString('en-IN')} views</span>
+      <span class="cs-item"><span class="cs-ic">${ICONS.star}</span>${ratingLabel}</span>
+    </div>
     ${hasDesc ? `
     <button class="pd-desc-toggle" onclick="this.nextElementSibling.classList.toggle('open'); this.classList.toggle('open')">Show description <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></button>
     <div class="pd-desc"><p>${l.desc}</p></div>` : ''}
     <div class="pd-price-row"><span class="big">₹${l.price.toLocaleString('en-IN')}</span>${l.mrp ? `<span style="text-decoration:line-through;color:var(--ink-faint);">₹${l.mrp.toLocaleString('en-IN')}</span>` : ''}</div>
     ${liveBtn}
     <button class="btn btn-primary" style="width:100%;margin-top:16px;" onclick="buyNow('${l._id}')">Buy Now</button>
+    ${rateWidget}
   `;
   startMediaAutoScroll();
+}
+
+async function submitRating(id, value) {
+  try {
+    const data = await api(`/listings/${id}/rate`, { method: 'POST', body: JSON.stringify({ value }) });
+    localStorage.setItem(ratedKey(id), String(value));
+    const cached = listingDetailCache.get(id);
+    if (cached) { cached.rating = data.rating; cached.reviews = data.reviews; }
+    const inList = currentListings.find((x) => x._id === id);
+    if (inList) { inList.rating = data.rating; inList.reviews = data.reviews; }
+    showToast('Thanks for rating this website!');
+    const l = listingDetailCache.get(id) || inList;
+    if (l && document.getElementById('pdOverlay').classList.contains('active')) renderProductModal(l);
+  } catch (err) {
+    showToast(err.message || 'Could not submit rating');
+  }
 }
 
 function renderProductSkeleton() {
@@ -335,8 +384,23 @@ async function openProduct(id) {
     if (!cached) {
       showToast('Could not load this listing — check backend connection');
       closePd();
+      return;
     }
   }
+
+  // 3. Count the open as a view (fire-and-forget) and reflect it locally
+  //    so the card's view count is accurate without a full reload.
+  try {
+    const { views } = await api(`/listings/${id}/view`, { method: 'POST' });
+    const cached2 = listingDetailCache.get(id);
+    if (cached2) cached2.views = views;
+    const inList = currentListings.find((x) => x._id === id);
+    if (inList) inList.views = views;
+    if (document.getElementById('pdOverlay').classList.contains('active')) {
+      const l2 = listingDetailCache.get(id) || inList;
+      if (l2) renderProductModal(l2);
+    }
+  } catch (err) { /* non-critical */ }
 }
 function closePd() { document.getElementById('pdOverlay').classList.remove('active'); }
 
