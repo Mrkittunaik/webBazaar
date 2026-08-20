@@ -1,5 +1,4 @@
-
-  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 
   :root{
     --ink:#15142b;
@@ -76,13 +75,10 @@
     transition:transform .28s cubic-bezier(.2,.8,.2,1);
   }
   header.hide{ transform:translateY(-100%); }
+  header{position:relative;}
   .nav{display:grid; grid-template-columns:auto 1fr auto; align-items:center; padding:16px 48px; gap:24px;}
-  @media(max-width:900px){.nav{padding:14px 20px; grid-template-columns:auto auto;}}
-  @media(max-width:420px){
-    .nav{grid-template-columns:1fr; justify-items:center; row-gap:10px;}
-    .navcta{justify-self:center; width:100%;}
-    .navcta .btn{flex:1;}
-  }
+  @media(max-width:900px){.nav{padding:12px 16px; grid-template-columns:auto 1fr auto; gap:8px;}}
+  @media(max-width:420px){.logo{font-size:18px;} .logo .mark{width:26px; height:26px; font-size:13px;}}
   .logo{font-family:var(--display); font-weight:700; font-size:22px; display:flex; align-items:center; gap:8px;}
   .logo .mark{
     width:30px; height:30px; border-radius:5px; background:var(--grad);
@@ -129,8 +125,22 @@
   .suggest-price{font-size:12.5px; font-weight:700; color:var(--violet-dark); white-space:nowrap;}
   .suggest-empty{padding:14px 12px; font-size:13px; color:var(--ink-faint); text-align:center;}
 
-  .navcta{display:flex; gap:10px; align-items:center; justify-self:end;}
-  @media(max-width:900px){.navcta{justify-self:end;}}
+  .navcta{display:flex; gap:8px; align-items:center; justify-self:end; flex-shrink:0;}
+  .icon-btn{
+    width:38px; height:38px; border-radius:5px; border:1px solid var(--line-strong); background:var(--panel);
+    display:flex; align-items:center; justify-content:center; color:var(--ink); flex-shrink:0; transition:border-color .15s, color .15s;
+  }
+  .icon-btn:hover{border-color:var(--violet); color:var(--violet);}
+  .search-toggle{display:none;}
+  .nav-sell-short{display:none;}
+  @media(max-width:900px){
+    .search-toggle{display:flex;}
+    .nav-browse{display:none;}
+  }
+  @media(max-width:380px){
+    .nav-sell-full{display:none;}
+    .nav-sell-short{display:inline;}
+  }
   .btn{
     display:inline-flex; align-items:center; justify-content:center; gap:8px;
     border-radius:5px;
@@ -146,8 +156,14 @@
   .btn-sm{padding:8px 14px; font-size:13px;}
   .btn:active{transform:translateY(0px) scale(.98);}
 
-  .mobile-search{display:none; padding:10px 20px 14px; border-bottom:1px solid var(--line);}
-  @media(max-width:900px){.mobile-search{display:block;} .mobile-search .searchbar{display:flex; max-width:none;}}
+  .mobile-search-drop{
+    display:none; position:absolute; left:0; right:0; top:100%;
+    background:var(--panel); border-bottom:1px solid var(--line);
+    padding:10px 16px 14px; z-index:59; box-shadow:0 12px 24px -12px rgba(21,20,43,.25);
+  }
+  .mobile-search-drop.show{display:block;}
+  .mobile-search-drop .searchbar{display:flex; max-width:none;}
+  .mobile-search-drop .search-wrap{max-width:none;}
 
   /* ===== Hero ===== */
   .hero{padding:76px 0 56px; position:relative;}
@@ -248,7 +264,8 @@
   /* ===== Product grid / cards =====
      Fix: cards made a bit smaller/tighter, with a clean 5px radius throughout. */
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px; margin-top:28px;}
-  @media(max-width:560px){ .grid{grid-template-columns:1fr; gap:14px;} }
+  @media(max-width:560px){ .grid{grid-template-columns:repeat(2,1fr); gap:10px;} }
+  @media(max-width:360px){ .grid{grid-template-columns:1fr;} }
   .card{
     background:var(--panel); border:1px solid var(--line); border-radius:5px;
     overflow:hidden; box-shadow:var(--shadow-card);
@@ -259,16 +276,40 @@
   }
   .card:hover{transform:translateY(-4px); box-shadow:var(--shadow-card-hover);}
   .card-thumb{
-    height:120px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden;
+    height:150px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; background:var(--line);
   }
+  @media(max-width:560px){.card-thumb{height:120px;}}
   .card-live{
     display:inline-flex; align-items:center; gap:5px;
     font-size:11.5px; font-weight:700; color:var(--mint);
     margin-top:2px;
   }
   .card-live .dot{width:6px; height:6px; border-radius:50%; background:var(--mint); animation:pulse 1.8s infinite;}
-  .card-thumb::after{content:''; position:absolute; inset:0; background:repeating-linear-gradient(115deg, rgba(255,255,255,.12) 0 2px, transparent 2px 24px);}
-  .card-thumb-emoji{font-size:40px; z-index:1; color:#fff; filter:drop-shadow(0 4px 10px rgba(0,0,0,.15)); display:flex; align-items:center; justify-content:center;}
+
+  /* Media carousel — used on both the grid card and the product-detail modal.
+     .media-track slides horizontally between images/video via translateX,
+     driven by JS (auto-scroll) or CSS scroll-snap as a touch fallback. */
+  .media-track{
+    display:flex; height:100%; width:100%; transition:transform .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .media-slide{
+    flex:0 0 100%; height:100%; position:relative; display:flex; align-items:center; justify-content:center; background:#eee;
+  }
+  .media-slide img, .media-slide video{width:100%; height:100%; object-fit:cover; display:block;}
+  .media-play{
+    position:absolute; bottom:8px; right:8px; width:22px; height:22px; border-radius:50%;
+    background:rgba(21,20,43,.55); color:#fff; display:flex; align-items:center; justify-content:center; z-index:2;
+  }
+  .media-play svg{width:11px; height:11px;}
+  .media-dots{
+    position:absolute; bottom:8px; left:50%; transform:translateX(-50%); display:flex; gap:5px; z-index:2;
+  }
+  .media-dot{width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,.55); transition:background .2s, width .2s;}
+  .media-dot.active{background:#fff; width:14px; border-radius:3px;}
+  .media-fallback{
+    width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#fff;
+  }
+  .media-fallback svg{width:36px; height:36px;}
   .card-badge{
     position:absolute; top:10px; left:10px; z-index:2;
     background:rgba(255,255,255,.92); color:var(--ink); font-size:11px; font-weight:800;
@@ -298,23 +339,35 @@
   .empty-state{
     text-align:center; padding:60px 20px; color:var(--ink-faint);
   }
-  .empty-state .e-icon{font-size:38px; margin-bottom:10px;}
+  .empty-state .e-icon{display:flex; justify-content:center; margin-bottom:10px; color:var(--ink-faint);}
+  .empty-state .e-icon svg{width:34px; height:34px;}
   .empty-state b{color:var(--ink-soft);}
 
   /* ===== Category browse tiles ===== */
-  .catgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:18px; margin-top:32px;}
+  .catgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:32px;}
+  @media(max-width:700px){.catgrid{gap:12px;}}
+  @media(max-width:420px){.catgrid{grid-template-columns:repeat(2,1fr); gap:10px;}}
   .cattile{
     background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px;
-    display:flex; flex-direction:column; gap:10px; cursor:pointer;
+    display:flex; flex-direction:column; gap:10px; cursor:pointer; aspect-ratio:auto;
     transition:transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s, border-color .2s;
   }
+  @media(max-width:700px){.cattile{padding:14px;}}
   .cattile:hover{transform:translateY(-4px); box-shadow:var(--shadow-card-hover); border-color:transparent;}
   .cattile .ct-icon{
     width:44px; height:44px; border-radius:5px; display:flex; align-items:center; justify-content:center;
-    font-size:20px; background:var(--grad); color:#fff;
+    background:var(--grad); color:#fff; flex-shrink:0;
   }
+  .cattile .ct-icon svg{width:20px; height:20px;}
+  @media(max-width:420px){.cattile .ct-icon{width:34px; height:34px;} .cattile .ct-icon svg{width:16px; height:16px;}}
   .cattile h4{font-size:15.5px; font-weight:700;}
+  @media(max-width:420px){.cattile h4{font-size:13.5px;}}
   .cattile span{font-size:12.5px; color:var(--ink-faint);}
+  @media(max-width:420px){.cattile span{font-size:11px;}}
+  .cat-ic{display:inline-flex; align-items:center; justify-content:center; width:13px; height:13px; margin-right:5px; vertical-align:-2px;}
+  .cat-ic svg{width:100%; height:100%;}
+  .chip-ic{display:inline-flex; width:14px; height:14px; align-items:center; justify-content:center;}
+  .chip-ic svg{width:100%; height:100%;}
 
   /* ===== Sell CTA band ===== */
   .sellband{
@@ -415,10 +468,23 @@
   @media(max-width:480px){ .field-2col{grid-template-columns:1fr;} }
   .modal-note{font-size:12.5px; color:var(--ink-faint); margin-top:12px; text-align:center;}
 
-  /* product detail modal */
-  .pd-thumb{height:170px; border-radius:5px; display:flex; align-items:center; justify-content:center; margin-bottom:18px; position:relative; overflow:hidden;}
-  .pd-thumb::after{content:''; position:absolute; inset:0; background:repeating-linear-gradient(115deg, rgba(255,255,255,.12) 0 2px, transparent 2px 24px);}
-  .pd-thumb span{font-size:52px; z-index:1; color:#fff; display:flex; align-items:center; justify-content:center;}
+  /* product detail modal — object-fit:contain (set inline per-slide) means the
+     whole image is always visible, never cropped, unlike the grid card thumb. */
+  .pd-thumb{height:280px; border-radius:5px; margin-bottom:18px; position:relative; overflow:hidden; background:var(--line);}
+  @media(max-width:600px){.pd-thumb{height:220px;}}
+  .pd-thumb .media-slide{background:var(--line);}
+  .pd-thumb .media-slide img, .pd-thumb .media-slide video{object-fit:contain;}
+
+  /* description hidden behind a toggle so the media + price lead the modal */
+  .pd-desc-toggle{
+    display:inline-flex; align-items:center; gap:6px; background:none; border:none; padding:0;
+    font-size:12.5px; font-weight:700; color:var(--violet-dark); margin-top:10px; cursor:pointer;
+  }
+  .pd-desc-toggle svg{transition:transform .2s;}
+  .pd-desc-toggle.open svg{transform:rotate(180deg);}
+  .pd-desc{display:grid; grid-template-rows:0fr; transition:grid-template-rows .25s ease; overflow:hidden;}
+  .pd-desc.open{grid-template-rows:1fr;}
+  .pd-desc p{min-height:0; overflow:hidden; margin:8px 0 0; color:var(--ink-soft); font-size:13.5px; line-height:1.5;}
 
   /* Skeleton loading state for the product modal (smooth open, no lag feel) */
   .skel{background:linear-gradient(90deg, var(--line) 25%, var(--line-strong) 37%, var(--line) 63%); background-size:400% 100%; animation:skelShine 1.4s ease infinite; border-radius:5px;}
