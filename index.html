@@ -35,11 +35,12 @@
       <div class="search-suggest" id="searchSuggest"></div>
     </div>
     <div class="navcta">
-      <a class="btn btn-ghost btn-sm" href="#browse">Browse</a>
-      <button class="btn btn-primary btn-sm" onclick="openSell()">Sell a Website</button>
+      <button class="icon-btn search-toggle" onclick="toggleMobileSearch()" aria-label="Search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
+      <a class="btn btn-ghost btn-sm nav-browse" href="#browse">Browse</a>
+      <button class="btn btn-primary btn-sm" onclick="openSell()"><span class="nav-sell-full">Sell a Website</span><span class="nav-sell-short">Sell</span></button>
     </div>
   </div>
-  <div class="mobile-search">
+  <div class="mobile-search-drop" id="mobileSearchDrop">
     <div class="search-wrap">
       <div class="searchbar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -263,9 +264,14 @@
       <input id="sLiveUrl" type="url" placeholder="https://yourwebsite.com">
     </div>
     <div class="field">
-      <label>Website images (HD) — first image is the cover</label>
+      <label>Website images (HD) — first image is the cover, up to 4</label>
       <input id="sImages" type="file" accept="image/*" multiple onchange="handleSellImages(event)">
       <div id="sImagePreview" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;"></div>
+    </div>
+    <div class="field">
+      <label>Demo video <span style="font-weight:400; color:var(--ink-faint);">— optional, plays in the card and listing</span></label>
+      <input id="sVideo" type="file" accept="video/*" onchange="handleSellVideo(event)">
+      <div id="sVideoPreview" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;"></div>
     </div>
     <div class="field">
       <label>Contact email <span style="font-weight:400; color:var(--ink-faint);">— optional if WhatsApp given</span></label>
