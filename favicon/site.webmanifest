@@ -1,0 +1,11 @@
+{
+  "name": "WebBazaar",
+  "short_name": "WebBazaar",
+  "icons": [
+    { "src": "/favicon/android-chrome-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon/android-chrome-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#6c4df5",
+  "background_color": "#f8f7fc",
+  "display": "standalone"
+}
