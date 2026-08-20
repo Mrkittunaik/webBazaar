@@ -293,6 +293,14 @@
   }
   .card-live .dot{width:6px; height:6px; border-radius:50%; background:var(--mint); animation:pulse 1.8s infinite;}
 
+  /* views + rating stat row shown on every card */
+  .card-stats{display:flex; align-items:center; gap:12px; font-size:12px; color:var(--ink-faint);}
+  .cs-item{display:inline-flex; align-items:center; gap:4px;}
+  .cs-item.cs-muted{color:var(--ink-faint);}
+  .cs-ic{display:inline-flex; width:13px; height:13px; flex-shrink:0;}
+  .cs-ic svg{width:100%; height:100%;}
+  .card-stats .cs-item:nth-child(2) .cs-ic{color:var(--amber);}
+
   /* Media carousel — used on both the grid card and the product-detail modal.
      .media-track slides horizontally between images/video via translateX,
      driven by JS (auto-scroll) or CSS scroll-snap as a touch fallback. */
@@ -492,6 +500,31 @@
   .pd-desc{display:grid; grid-template-rows:0fr; transition:grid-template-rows .25s ease; overflow:hidden;}
   .pd-desc.open{grid-template-rows:1fr;}
   .pd-desc p{min-height:0; overflow:hidden; margin:8px 0 0; color:var(--ink-soft); font-size:13.5px; line-height:1.5;}
+
+  /* views + rating row in the product modal */
+  .pd-meta-row{display:flex; align-items:center; gap:16px; margin-top:10px; font-size:13px; color:var(--ink-soft);}
+  .pd-meta-row .cs-ic{width:15px; height:15px;}
+  .pd-meta-row .cs-item:last-child .cs-ic{color:var(--amber);}
+  .pd-rating-count{color:var(--ink-faint); font-size:12px;}
+
+  /* rate-it widget — shown once per device via localStorage, then replaced
+     by a thank-you note the next time the same device opens this listing */
+  .pd-rate-box{
+    margin-top:16px; padding:14px; border:1px dashed var(--line-strong); border-radius:5px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  }
+  .pd-rate-box span{font-size:13px; font-weight:700; color:var(--ink-soft);}
+  .pd-stars{display:flex; gap:4px;}
+  .pd-star{
+    width:30px; height:30px; border:none; background:none; color:var(--ink-faint); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:color .15s, transform .15s;
+  }
+  .pd-star svg{width:20px; height:20px;}
+  .pd-star:hover{color:var(--amber); transform:scale(1.12);}
+  .pd-rated-note{
+    margin-top:14px; font-size:13px; color:var(--ink-soft); display:flex; align-items:center; gap:6px;
+  }
+  .pd-rated-note svg{width:15px; height:15px; color:var(--amber); flex-shrink:0;}
 
   /* Skeleton loading state for the product modal (smooth open, no lag feel) */
   .skel{background:linear-gradient(90deg, var(--line) 25%, var(--line-strong) 37%, var(--line) 63%); background-size:400% 100%; animation:skelShine 1.4s ease infinite; border-radius:5px;}
